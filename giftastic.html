@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>In-A-Gif</title>
+
+ <style type="text/css">
+   .container{
+    margin: 20px;
+    padding: 20px;
+   }
+
+  #buttons-view{
+  padding: 10px;
+  }
+
+  #gifs-here{
+  padding: 15px;
+  }
+
+ </style>
+
+</head>
+
+<body>
+
+<!-- Screw the Bootstrap Container!! X-nay the Boostrap-Yay -->
+    <div class="container">
+        <h1>In-A-Gif</h1>
+      
+    
+     <div id="buttons-view">
+
+<!--** The buttons preceding from the app array, need to display ahead **-->
+
+<!--This form is dedicated to adding Topics' buttons for related Giphy's-->  
+        <form id="topic-form">
+          <label for="topic-input">Add an Outdoor View You Want to See</label>
+          <input type="text" id="topic-input"><br>
+          <input id="add-topic" type="submit" value="Click to Add">
+        </form>
+
+        </div>
+      <!-- Button triggers new topic to be added -->
+      
+      
+
+
+      <!--Gifs display and keep prepending, in sets of 10, here-->
+        <div id="gifs-here">
+          <div id="gif">
+          </div>            
+        </div>
+
+     </div>
+     
+<!-- 2. Your app should take the topics in this array and create buttons in your HTML.
+   * Try using a loop that appends a button for each string in the array.
+
+3. When the user clicks on a button, the page should grab 10 static, non-animated gif images from the GIPHY API and place them on the page. 
+
+4. When the user clicks one of the still GIPHY images, the gif should animate. If the user clicks the gif again, it should stop playing.
+
+5. Under every gif, display its rating (PG, G, so on). 
+   * This data is provided by the GIPHY API.
+   * Only once you get images displaying with button presses should you move on to the next step.
+
+6. Add a form to your page takes the value from a user input box and adds it into your `topics` array. Then make a function call that takes each topic in the array remakes the buttons on the page. -->
+
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+ <script type="text/javascript">
+
+ var topic = ["fireflies", "sunrise", "forest", "lakes", "mountains"];
+
+ 
+ function showGifs(newTopic) {
+      var topic = newTopic;
+      console.log("topic")
+      console.log(topic)
+      var limit = 10;
+      var rating = 'pg';
+      var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+        topic + "&limit=" + limit + "&rating=" + rating + "&api_key=dc6zaTOxFJmzC";
+
+      $.ajax({
+          url: queryURL,
+          method: "GET"
+        })
+         .done(function(response) {
+
+          console.log(response);
+          // storing the data from the AJAX request in the results variable
+          var results = response.data;
+
+          // Looping through each result item
+          $("#gifs-here").empty();
+          for (var i = 0; i < results.length; i++) {
+       
+        
+          // Creates a div to hold the topic
+            // Creating and storing a div tag
+            var gifDiv = $("<div>");
+
+
+            var topicImage = $("<img>");
+            topicImage.attr("src", results[i].images.fixed_height.url);
+
+            gifDiv.prepend(topicImage);
+
+            $("#gifs-here").prepend(gifDiv);
+          }
+        });
+
+    };
+
+    function showButtons() {
+         $("#buttons-view").empty();
+        // Looping through the array of app-listed topics
+        for (var i = 0; i < topic.length; i++) {
+
+          // Then dynamicaly generating buttons for each topic in the array
+          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          var a = $("<button>");
+          // Adding a class of movie to our button
+          a.addClass("topic");
+          // Adding a data-attribute
+          a.attr("data-name", topic[i]);
+          // Providing the initial button text
+          a.text(topic[i]);
+          // Adding the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+
+      // This function handles events where a topic button is clicked
+      $("#add-topic").on("click", function(event) {
+        event.preventDefault();
+        // This line grabs the input from the textbox
+        var newTopic = $("#topic-input").val().trim();
+
+        // Adding topic from the input field to our array - 
+        //pushing vew varibale-held input to the related array variable.
+
+        topic.push(newTopic);
+
+        // Calling renderButtons which handles the processing of our topic array
+        showButtons();
+      });
+
+//button value denotes ajax request context to giphy
+
+  $(document).on("click", '.topic', function() {
+        var topicSend = $(this).attr("data-name");
+        console.log("topicSend");
+        console.log(topicSend);
+
+        showGifs(topicSend);
+  });
+
+
+
+  $(".gif").on("click", function() {
+        
+        var state = $(this).attr("data-state");
+        console.log(state);
+
+        if(state === "still"){
+          $(this).attr("src", $(this).attr("data-animate"));
+          $(this).attr("data-state", "animate");
+        }
+
+        else{
+          $(this).attr("src", $(this).attr("data-still"));
+          $(this).attr("data-state", "still");
+        }
+      });
+        
+  //$(document).on('click', '.topic', showGifs);
+
+  showButtons();
+
+ </script>
+
+</body>
+</html>
